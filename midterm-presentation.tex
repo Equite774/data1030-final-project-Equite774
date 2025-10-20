@@ -3,6 +3,7 @@
     ]{beamer}
 
 \usepackage{pgffor}
+\usepackage{hyperref}
 \usetheme{Boadilla}
 
 \newcommand{\R}{\mathbb{R}}
@@ -28,8 +29,8 @@
 \newcommand{\spa}{\mathrm{span}}
 \newcommand{\tbf}[1]{\ifmmode\mathbf{#1}\else\textbf{#1}\fi}
 
-\title{Probability, Law of Large Numbers, and Monte Carlo}
-\subtitle{A Brief* Introduction}
+\title{Data 1030 Midterm Presentation}
+\subtitle{\href{https://github.com/Equite774/data1030-final-project-Equite774}{Repository Link}}
 \author{Chai Harsha}
 \institute{Brown University}
 \date{\today}
@@ -37,6 +38,53 @@
 \begin{document}
 \begin{frame}
     \titlepage
+\end{frame}
+
+\begin{frame}
+    \frametitle{Flight Data}
+    \begin{itemize}
+        \item Thousands of flights + thousands of airports = vast potential for delays
+        \item Airport design, airline inefficiencies, etc
+        \item Can we predict delays?
+        \item USDOT Bureau of Transportation Statistics collects on-time performance of major carriers
+        \item \href{https://www.kaggle.com/datasets/usdot/flight-delays/data?select=flights.csv}{\color{blue}Kaggle dataset - 2015 flight delays\color{black}}
+        \item This is a very large dataset (\(>\)5 million rows) and also has many missing values
+        \item Continuous data and some categorical data
+        \item There are other factors not in this database - weather being the obvious one
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{EDA}
+    \begin{center}
+        \includegraphics[width=0.7\linewidth]{visualizations/arrivaldelay.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{EDA}
+    \begin{center}
+        \includegraphics[width=0.7\linewidth]{visualizations/arrivaldelayvsairlinedelay.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{EDA}
+    \begin{center}
+        \includegraphics[width=0.7\linewidth]{visualizations/arrivaldelaybyairlinefiltered.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Preprocessing}
+    \begin{itemize}
+        \item 105071 rows (\(1.81\%\) of dataset) missing the target feature - dropped
+        \item Too many airports - selected top 20 + ``Other''
+        \item Standard scaler on continuous data
+        \item Minmax scaler on time-of-day data
+        \item One-Hot encoded categorical data
+        \item Dropped columns like cancellation reason and air system delay for too many missing data \((>80\%)\)
+    \end{itemize}
 \end{frame}
 
 \end{document}
