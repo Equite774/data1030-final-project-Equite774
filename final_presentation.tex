@@ -1,0 +1,141 @@
+\documentclass[
+    aspectratio = 169,
+    ]{beamer}
+
+\usepackage{pgffor}
+\usepackage{hyperref}
+\usetheme{Boadilla}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\I}{\mathbb{I}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\del}{\partial}
+\newcommand{\Del}{\nabla}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\fa}{\forall\,}
+\newcommand{\ex}{\exists\,}
+\newcommand{\st}{\text{ s.t. }}
+\newcommand{\emp}{\varnothing}
+\newcommand{\sm}{\setminus}
+\newcommand{\limdiam}[1]{\lim_{#1}\text{diam }}
+\newcommand{\indic}{\mathbbm{1}}
+\newcommand{\nul}{\mathrm{null}}
+\newcommand{\range}{\mathrm{range}}
+\newcommand{\spa}{\mathrm{span}}
+\newcommand{\tbf}[1]{\ifmmode\mathbf{#1}\else\textbf{#1}\fi}
+
+\title{Data 1030 Final Presentation}
+\subtitle{\href{https://github.com/Equite774/data1030-final-project-Equite774}{Repository Link}}
+\author{Chai Harsha}
+\institute{Brown University}
+\date{\today}
+
+\begin{document}
+\begin{frame}
+    \titlepage
+\end{frame}
+\begin{frame}
+    \frametitle{Recap}
+    \begin{itemize}
+        \item Predict flight delays using historical data \(\rightarrow\) better allocate airport resources
+        \item USDOT Bureau of Transportation Statistics collects on-time performance of major carriers
+        \item \href{https://www.kaggle.com/datasets/usdot/flight-delays/data?select=flights.csv}{\color{blue}Kaggle dataset - 2015 flight delays\color{black}}
+        \item Preprocessing: Dropped rows with missing target values, removed obviously leaky columns and columns that have too many missing values
+        \item Train-Val-Test split: 60-20-20
+        \item EDA: Some variance in delays across airlines, airports, time of day
+    \end{itemize}
+    \begin{center}
+        \includegraphics[width=0.4\textwidth]{visualizations/arrivaldelaybyairlinefiltered.png}
+    \end{center}
+\end{frame}
+\begin{frame}
+    \frametitle{Models}
+    \begin{itemize}
+        \item Large dataset resulted in restricted model choice
+        \item Linear Regression (ElasticNet) - SGDRegressor because faster training on large data
+        \item Support Vector Machine (Linear SVM) - LinearSVR for faster training + RAM efficiency
+        \item Decision Tree Regressor - chose random splits for faster training
+        \item XGBoost Regressor - has efficient enough implementation
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Cross Validation}
+    \begin{itemize}
+        \item Recall Train-Val-Test split was 60-20-20
+        \item Used 4-Fold Cross Validation (with rs=42) on Train set for hyperparam tuning
+        \item Selected hyperparams with lowest average RMSE across folds
+        \item Tested best model on Val set to estimate performance
+    \end{itemize}
+    {\small\begin{tabular}{c|c|c|c}
+        ElasticNet & Linear SVM & Decision Tree & XGBoost \\
+        \hline
+        \(\alpha\in[0.01, 100],\) & \(C = 10^n,n\in\{-1,0,1,2\},\) & max\_depth \(\in\{3,7,10\}\) & max\_depth\(\in\{6,9,12\}\) \\ 
+        \(l_1\) ratio \(\in[0,1],\) & \(\varepsilon = 0\) & & lr\(\in\{0.01,0.1,1\}\) \\ 
+        4 values each & & & n\_trees\(\in\{300,400,500\}\)
+    \end{tabular}}
+\end{frame}
+\begin{frame}
+    \frametitle{Results}
+    \begin{itemize}
+        \item Baseline prediction (mean of test set): \(RMSE = 39.2402, R^2=-0.0000\)
+        \item ElasticNet: \(RMSE = 0.1498, R^2=1.0000\)
+        \item Linear SVM:\(RMSE = 0.0000, R^2=1.0000\)
+        \item Decision Tree \(RMSE = 11.7675, R^2 = 0.9101\)
+        \item XGBoost: \(RMSE = 2.9834, R^2 = 0.9942\)
+        \item This is suspicious - there is some data leakage, some columns I should have left out
+        \item If you have scheduled arrival and departure and actual arrival and departure, delay is trivial for linear models
+    \end{itemize}
+\end{frame}
+\begin{frame}
+    \frametitle{Mean + Std Dev}
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{visualizations/elasticnetCV.png} \\
+    \end{center}
+\end{frame}
+\begin{frame}
+    \frametitle{Mean + Std Dev}
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{visualizations/decisiontreeCV.png} \\
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Scatter Plots}
+    \begin{tabular}{c|c}
+        \includegraphics[width=0.45\textwidth]{visualizations/elasticnetscatter.png} & \includegraphics[width=0.45\textwidth]{visualizations/svmscatter.png}
+    \end{tabular}
+\end{frame}
+\begin{frame}
+    \frametitle{Scatter Plots}
+    \begin{tabular}{c|c}
+        \includegraphics[width=0.45\textwidth]{visualizations/decisiontreescatter.png} & \includegraphics[width=0.45\textwidth]{visualizations/xgboostscatter.png}
+    \end{tabular}
+\end{frame}
+\begin{frame}
+    \frametitle{Perturbation Importance}
+    \begin{tabular}{c|c}
+        \includegraphics[width=0.45\textwidth]{visualizations/perturbationelasticnet.png} & \includegraphics[width=0.45\textwidth]{visualizations/perturbationsvm.png} \\
+    \end{tabular}
+\end{frame}
+\begin{frame}
+    \frametitle{Perturbation Importance}
+    \begin{tabular}{c|c}
+        \includegraphics[width=0.45\textwidth]{visualizations/perturbationdecisiontree.png} & \includegraphics[width=0.45\textwidth]{visualizations/perturbationsvm.png} \\
+    \end{tabular}
+\end{frame}
+\begin{frame}
+    \frametitle{Interpretability}
+    \begin{itemize}
+        \item Ran perturbation importance on best models (SHAP was too computationally expensive)
+        \item Used linear-type models and a decision tree - easier to interpret
+        \item These results seem suspicious - I think there is some implicit data leakage
+        \item I left in some features, like `WHEELS\_ON', and `ARRIVAL\_TIME', that won't be known at inference time
+        \item In hindsight, an easy fix for the report
+    \end{itemize}
+\end{frame}
+\end{document}
